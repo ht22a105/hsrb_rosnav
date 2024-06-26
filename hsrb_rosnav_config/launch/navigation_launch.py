@@ -1,14 +1,12 @@
 import os
-
 from ament_index_python.packages import get_package_share_directory
 
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription, SetEnvironmentVariable
+from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription, SetEnvironmentVariable, ExecuteProcess
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import Node
 from nav2_common.launch import RewrittenYaml
-
 
 def generate_launch_description():
     namespace = LaunchConfiguration('namespace')
@@ -21,7 +19,7 @@ def generate_launch_description():
 
     lifecycle_nodes = ['controller_server',
                        'planner_server',
-                       'recoveries_server',
+                       'behavior_server',
                        'bt_navigator',
                        'waypoint_follower']
 
@@ -59,6 +57,8 @@ def generate_launch_description():
 
         DeclareLaunchArgument(
             'map',
+            default_value=os.path.join(get_package_share_directory('hsrb_rosnav_config'),
+                                       'maps', 'map.yaml'),
             description='Full path to map yaml file to load'),
 
         DeclareLaunchArgument(
@@ -94,9 +94,9 @@ def generate_launch_description():
             remappings=tf_remappings),
 
         Node(
-            package='nav2_recoveries',
-            executable='recoveries_server',
-            name='recoveries_server',
+            package='nav2_behaviors',
+            executable='behavior_server',
+            name='behavior_server',
             output='screen',
             parameters=[configured_params],
             remappings=remappings),
@@ -136,4 +136,8 @@ def generate_launch_description():
                               'autostart': autostart,
                               'params_file': params_file}.items()),
 
+        ExecuteProcess(
+            cmd=['python3', os.path.join(get_package_share_directory('hsrb_rosnav_config'), 'config', 'initial_pose_publisher.py')],
+            output='screen'
+        )
     ])
