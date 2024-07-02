@@ -2,7 +2,7 @@ import os
 from ament_index_python.packages import get_package_share_directory
 
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription, SetEnvironmentVariable, ExecuteProcess
+from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription, SetEnvironmentVariable
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import Node
@@ -135,9 +135,4 @@ def generate_launch_description():
                               'use_sim_time': use_sim_time,
                               'autostart': autostart,
                               'params_file': params_file}.items()),
-
-        ExecuteProcess(
-            cmd=['python3', os.path.join(get_package_share_directory('hsrb_rosnav_config'), 'config', 'initial_pose_publisher.py')],
-            output='screen'
-        )
     ])
